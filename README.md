@@ -50,7 +50,7 @@ services:
 ```bash
 docker run -d \
   --name plex-unwatched-reporter \
-  -p 4080:8089 \
+  -p 4080:4080 \
   -v ./config:/config \
   -v ./reports:/reports \
   -v /path/to/plex/Databases:/plex-db:ro \
