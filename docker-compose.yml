@@ -3,7 +3,7 @@ services:
     build: .
     container_name: plex-unwatched-reporter
     ports:
-      - "4080:8089"
+      - "4080:4080"
     volumes:
       # Configuration storage
       - ./config:/config
