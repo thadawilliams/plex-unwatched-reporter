@@ -12,7 +12,7 @@ COPY app.py .
 RUN mkdir -p /config /reports /plex-db
 
 # Expose port
-EXPOSE 8089
+EXPOSE 4080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
