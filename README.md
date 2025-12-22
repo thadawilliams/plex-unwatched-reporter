@@ -8,7 +8,7 @@
 
 - 🎬 **Movie Libraries**: Detailed reports with title, year, play count, file path, and size
 - 📺 **TV Show Libraries**: Season-by-season reporting with episode watch statistics
-- 🖥️ **Retro Terminal UI**: Stunning amber CRT-inspired interface with scanlines and glow effects
+- 🖥️ **Retro Terminal UI**: Amber CRT-inspired interface with scanlines and glow effects
 - 💾 **Persistent Configuration**: Library selections and settings saved between sessions
 - ⏱️ **Smart Filtering**: Exclude recently added content (configurable days)
 - 📊 **CSV Export**: Easy-to-analyze spreadsheet format
