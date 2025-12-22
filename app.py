@@ -176,4 +176,5 @@ def health():
 if __name__=='__main__':
     os.makedirs('/config',exist_ok=True)
     os.makedirs(REPORTS_DIR,exist_ok=True)
-    app.run(host='0.0.0.0',port=8089,debug=False)
+
+    app.run(host='0.0.0.0',port=4080,debug=False)
