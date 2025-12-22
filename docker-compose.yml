@@ -10,7 +10,7 @@ services:
       # Reports output directory (you can also map this to /mnt/user/Downloads if preferred)
       - ./reports:/reports
       # Plex database (read-only) - UPDATE THIS PATH TO YOUR PLEX LOCATION
-      - /mnt/user/apps/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/plex-db:ro
+      - /mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/plex-db:ro
     environment:
       - TZ=America/Denver
     restart: unless-stopped
