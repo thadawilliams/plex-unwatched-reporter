@@ -31,7 +31,7 @@ services:
     image: thadawilliams/plex-unwatched-reporter:latest
     container_name: plex-unwatched-reporter
     ports:
-      - "4080:8089"
+      - "4080:4080"
     volumes:
       - ./config:/config
       - ./reports:/reports
@@ -154,7 +154,7 @@ Use **Clear All Reports** button to delete all generated CSV files when you're d
 **Solution**: Change the host port (first number) in docker-compose.yml:
 ```yaml
 ports:
-  - "8090:8089"  # Changed to 8090
+  - "8090:4080"  # Changed to 8090
 ```
 Then access via `http://your-ip:8090`
 
