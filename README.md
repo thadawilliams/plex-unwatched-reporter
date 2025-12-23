@@ -13,6 +13,7 @@
 - ⏱️ **Smart Filtering**: Exclude recently added content (configurable days)
 - 📊 **CSV Export**: Easy-to-analyze spreadsheet format
 - 🗑️ **Report Management**: Clear old reports with one click
+- 🔌 **Shutdown Button**: Stop the container when you're done
 
 ## Screenshots
 
@@ -38,44 +39,53 @@ Before installing, you need to obtain your **Plex Token**:
 
 ⚠️ **Security Note:** Keep your Plex token private - it grants full access to your Plex server.
 
+---
+
 ## Quick Start
 
 ### Docker Compose (Recommended)
 
 1. Create a `docker-compose.yml` file:
-```yaml
-version: '3.8'
 
+```yaml
 services:
   plex-reporter:
-    image: thadawilliams/plex-unwatched-reporter:latest
+    image: tawilliams/plex-unwatched-reporter:latest
     container_name: plex-unwatched-reporter
     ports:
       - "4080:4080"
     volumes:
       - ./config:/config
       - ./reports:/reports
-      # UPDATE THIS PATH to your Plex database location
-      - /mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/plex-db:ro
     environment:
       - TZ=America/New_York
+      - PLEX_URL=http://your-plex-ip:32400
+      - PLEX_TOKEN=your-plex-token-here
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 ```
 
-2. Update the Plex database path to match your system
-3. Run: `docker-compose up -d`
-4. Access at: `http://your-server-ip:4080`
+2. Update `PLEX_URL` to your Plex server address (e.g., `http://192.168.1.100:32400`)
+3. Replace `PLEX_TOKEN` with your actual Plex token from the Prerequisites section
+4. Run: `docker-compose up -d`
+5. Access at: `http://your-server-ip:4080`
 
 ### Docker Run
+
 ```bash
 docker run -d \
   --name plex-unwatched-reporter \
   -p 4080:4080 \
   -v ./config:/config \
   -v ./reports:/reports \
-  -v /path/to/plex/Databases:/plex-db:ro \
   -e TZ=America/New_York \
-  thadawilliams/plex-unwatched-reporter:latest
+  -e PLEX_URL=http://your-plex-ip:32400 \
+  -e PLEX_TOKEN=your-plex-token-here \
+  tawilliams/plex-unwatched-reporter:latest
 ```
 
 ### Unraid
@@ -83,24 +93,26 @@ docker run -d \
 1. Open **Community Applications**
 2. Search for "Plex Unwatched Reporter"
 3. Click **Install**
-4. Configure paths:
+4. Configure:
    - **Config**: `/mnt/user/appdata/plex-unwatched-reporter`
    - **Reports**: `/mnt/user/Downloads` (or your preferred location)
-   - **Plex Database**: `/mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases`
+   - **Plex URL**: `http://your-plex-ip:32400` (your Plex server address)
+   - **Plex Token**: Your Plex authentication token
+   - **Timezone**: Your timezone (e.g., `America/New_York`)
 5. Click **Apply**
+
+---
 
 ## Usage
 
 ### 1. Configure Settings
 
-- **Plex Database Path**: Default is `/plex-db/com.plexapp.plugins.library.db` (already mapped in Docker)
-- **Output Directory**: Where CSV reports are saved (default: `/reports`)
 - **Exclusion Period**: Ignore content added within X days (default: 30)
 - Click **Save Configuration**
 
 ### 2. Scan Libraries
 
-Click **Scan Libraries** to detect all available Plex libraries from your database.
+Click **Scan Libraries** to detect all available Plex libraries from your Plex server using the official Plex API.
 
 ### 3. Select Libraries
 
@@ -116,20 +128,18 @@ Click **Generate Reports** to create CSV files. Progress is shown in real-time. 
 
 Use **Clear All Reports** button to delete all generated CSV files when you're done with them.
 
+### 6. Shutdown
+
+Use **Shutdown Application and Stop Container** button when finished. This is a run-on-demand tool, not meant to run 24/7.
+
+---
+
 ## Volume Mounts
 
 | Container Path | Purpose | Example Host Path |
 |---------------|---------|-------------------|
 | `/config` | Persistent configuration | `./config` or `/mnt/user/appdata/plex-unwatched-reporter` |
 | `/reports` | Generated CSV files | `./reports` or `/mnt/user/Downloads` |
-| `/plex-db` | Plex database (read-only) | `/mnt/user/appdata/plex/.../Databases` |
-
-## Common Plex Database Paths
-
-- **Unraid**: `/mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases`
-- **Linux**: `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-in Support/Databases`
-- **Windows**: `C:\Users\[USER]\AppData\Local\Plex Media Server\Plug-in Support\Databases`
-- **macOS**: `~/Library/Application Support/Plex Media Server/Plug-in Support/Databases`
 
 ## Report Formats
 
@@ -149,23 +159,38 @@ Use **Clear All Reports** button to delete all generated CSV files when you're d
 - Episodes Watched Count
 - Date Added to Plex
 
+---
+
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `TZ` | `UTC` | Timezone for date/time display |
+| `PLEX_URL` | *Required* | Plex server URL (e.g., `http://192.168.1.100:32400`) |
+| `PLEX_TOKEN` | *Required* | Plex authentication token |
+
+---
 
 ## Troubleshooting
 
-### Database Not Found
+### Cannot Connect to Plex
 
-**Error**: "Database file not found"
+**Error**: "Failed to connect" or "Connection refused"
 
 **Solution**: 
-- Verify Plex database path in docker-compose.yml is correct
-- Ensure path exists: `ls -la "/path/to/plex/Databases/"`
-- Check volume mount is configured as read-only (`:ro`)
-- Make sure Plex is installed and has been run at least once
+- Verify `PLEX_URL` is correct and includes the port (usually `32400`)
+- If Plex is on the same server, try `http://localhost:32400`
+- If on a different server, use the server's IP address
+- Ensure Plex is running and accessible from the Docker container
+
+### Invalid Plex Token
+
+**Error**: "Unauthorized" or "Invalid token"
+
+**Solution**:
+- Double-check your Plex token is correct
+- Generate a new token following the Prerequisites section
+- Ensure there are no extra spaces when copying the token
 
 ### Port Already in Use
 
@@ -186,25 +211,30 @@ Then access via `http://your-ip:8090`
 - Check Docker logs: `docker logs plex-unwatched-reporter`
 - Verify at least one library is selected
 - Ensure reports directory has write permissions
-- Check that selected libraries actually exist in Plex
+- Verify your Plex token has access to the selected libraries
 
 ### No Libraries Showing
 
 **Symptoms**: Scan Libraries returns empty or shows error
 
 **Solution**:
-- Verify Plex database path is correct
-- Ensure database file is accessible (check permissions)
-- Try stopping Plex temporarily if database is locked
-- Check Docker logs for specific error messages
+- Verify `PLEX_URL` and `PLEX_TOKEN` are set correctly
+- Check Docker logs for connection errors
+- Ensure your Plex token has access to your Plex libraries
+- Try restarting the container: `docker restart plex-unwatched-reporter`
+
+---
 
 ## Building from Source
+
 ```bash
 git clone https://github.com/thadawilliams/plex-unwatched-reporter.git
 cd plex-unwatched-reporter
 docker build -t plex-unwatched-reporter .
 docker-compose up -d
 ```
+
+---
 
 ## Contributing
 
@@ -215,6 +245,8 @@ Contributions welcome! Please:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+---
 
 ## License
 
@@ -227,15 +259,20 @@ This means:
 - ⚠️ You must license derivative works under AGPL-3.0
 - ⚠️ Network use counts as distribution (must share modifications)
 
+---
+
 ## Support
 
 - 🐛 [Report Issues](https://github.com/thadawilliams/plex-unwatched-reporter/issues)
 - 💡 [Request Features](https://github.com/thadawilliams/plex-unwatched-reporter/issues/new)
 - 📖 [Documentation](https://github.com/thadawilliams/plex-unwatched-reporter/wiki)
 
+---
+
 ## Acknowledgments
 
-- Built with [Flask](https://flask.palletsprojects.com/) and Python
+- Built with [Flask](https://flask.palletsprojects.com/), Python, and [PlexAPI](https://github.com/pkkid/python-plexapi)
+- Uses the official Plex API for safe, non-invasive access to your Plex server
 - Inspired by retro computing and CRT terminal aesthetics
 - Special thanks to the Plex community
 

@@ -7,8 +7,6 @@ services:
     volumes:
       - ./config:/config
       - ./reports:/reports
-      # UPDATE THIS PATH to your Plex database location
-      - /mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/plex-db:ro
     environment:
       - TZ=America/New_York
       - PLEX_URL=http://your-plex-ip:32400
