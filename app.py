@@ -300,28 +300,34 @@ def clear_reports():
 
 @app.route('/api/shutdown',methods=['POST'])
 def shutdown_container():
-    """Gracefully shutdown the Flask app and container"""
-    import os
-    import sys
+    """Trigger shutdown by sending SIGTERM to self"""
+    import signal
     
-    def kill_process():
+    def trigger_shutdown():
         import time
-        time.sleep(1)
-        # Try multiple methods to ensure shutdown
-        try:
-            os._exit(0)  # Force exit without cleanup
-        except:
-            sys.exit(0)
+        time.sleep(1)  # Give time for response to be sent
+        os.kill(os.getpid(), signal.SIGTERM)
     
     import threading
-    threading.Thread(target=kill_process).start()
+    threading.Thread(target=trigger_shutdown).start()
     return jsonify({'status':'shutting down'})
+
+def handle_sigterm(signum, frame):
+    """Handle SIGTERM signal for graceful shutdown"""
+    print("Received SIGTERM, shutting down gracefully...")
+    sys.exit(0)
 
 @app.route('/health',methods=['GET'])
 def health():
     return jsonify({'status':'healthy'})
 
 if __name__=='__main__':
+    import signal
+    import sys
+    
+    # Register SIGTERM handler
+    signal.signal(signal.SIGTERM, handle_sigterm)
+    
     os.makedirs('/config',exist_ok=True)
     os.makedirs(REPORTS_DIR,exist_ok=True)
     app.run(host='0.0.0.0',port=4080,debug=False)
