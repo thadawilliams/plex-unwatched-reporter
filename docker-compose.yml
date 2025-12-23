@@ -1,4 +1,4 @@
-amlservices:
+services:
   plex-reporter:
     image: tawilliams/plex-unwatched-reporter:latest
     container_name: plex-unwatched-reporter
