@@ -123,7 +123,7 @@ def generate_reports():
         cutoff_date = datetime.now() - timedelta(days=exclude_days)
         
         # Process in the order libraries appear in the UI
-        for idx, lib_key in enumerate(selected_libs):
+        for idx, lib_key in enumerate(selected_libs, start=1):
             lib_type=library_types.get(lib_key,'movie')
             section = plex.library.sectionByID(int(lib_key))
             
@@ -142,9 +142,6 @@ def generate_reports():
                 item_count=generate_tv_report_plexapi(section, output_path, cutoff_date)
             
             results.append({'library':section.title,'filename':filename,'itemCount':item_count,'path':f'/api/download/{filename}'})
-            
-            # Update progress after completion
-            progress_data['current'] = idx + 1
         
         return jsonify({'reports':results})
     except Exception as e:
