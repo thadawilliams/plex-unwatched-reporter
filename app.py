@@ -165,7 +165,9 @@ def generate_movie_report_plexapi(section, output_path, cutoff_date):
             
             year = movie.year if hasattr(movie, 'year') else 'Unknown'
             date_added = movie.addedAt.strftime('%Y-%m-%d %H:%M:%S') if movie.addedAt else 'Unknown'
-            play_count = movie.viewCount if movie.viewCount else 0
+            
+            # Get total play count across ALL users using history()
+            play_count = len(movie.history())
             
             # Get file info
             file_path = 'Unknown'
@@ -196,7 +198,9 @@ def generate_tv_report_plexapi(section, output_path, cutoff_date):
                 
                 episodes = season.episodes()
                 total_episodes = len(episodes)
-                watched_episodes = sum(1 for ep in episodes if ep.viewCount and ep.viewCount > 0)
+                
+                # Get watched count across ALL users using history()
+                watched_episodes = sum(1 for ep in episodes if len(ep.history()) > 0)
                 watched_status = 'Yes' if watched_episodes > 0 else 'No'
                 date_added = season.addedAt.strftime('%Y-%m-%d %H:%M:%S') if season.addedAt else 'Unknown'
                 
