@@ -244,8 +244,13 @@ def generate_tv_report_plexapi(section, output_path, cutoff_date, progress_data)
         watched_status = 'Yes' if watched_episodes > 0 else 'No'
         date_added = season.addedAt.strftime('%Y-%m-%d %H:%M:%S') if season.addedAt else 'Unknown'
         
+        # Ensure show title is treated as text by prepending tab character for numeric-only titles
+        show_title = show.title
+        if show_title.strip().replace('-','').replace('.','').isdigit():
+            show_title = '\t' + show_title
+        
         season_data.append({
-            'show_title': show.title,
+            'show_title': show_title,
             'season_number': f"Season {season.seasonNumber}",
             'season_number_int': season.seasonNumber,
             'watched_status': watched_status,
@@ -296,16 +301,20 @@ def clear_reports():
 @app.route('/api/shutdown',methods=['POST'])
 def shutdown_container():
     """Gracefully shutdown the Flask app and container"""
-    import signal
+    import os
     import sys
     
-    def shutdown():
+    def kill_process():
         import time
-        time.sleep(1)  # Give time for response to be sent
-        os.kill(os.getpid(), signal.SIGKILL)  # Force kill
+        time.sleep(1)
+        # Try multiple methods to ensure shutdown
+        try:
+            os._exit(0)  # Force exit without cleanup
+        except:
+            sys.exit(0)
     
     import threading
-    threading.Thread(target=shutdown).start()
+    threading.Thread(target=kill_process).start()
     return jsonify({'status':'shutting down'})
 
 @app.route('/health',methods=['GET'])
