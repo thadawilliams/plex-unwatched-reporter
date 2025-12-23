@@ -297,7 +297,15 @@ def clear_reports():
 def shutdown_container():
     """Gracefully shutdown the Flask app and container"""
     import signal
-    os.kill(os.getpid(), signal.SIGTERM)
+    import sys
+    
+    def shutdown():
+        import time
+        time.sleep(1)  # Give time for response to be sent
+        os.kill(os.getpid(), signal.SIGKILL)  # Force kill
+    
+    import threading
+    threading.Thread(target=shutdown).start()
     return jsonify({'status':'shutting down'})
 
 @app.route('/health',methods=['GET'])
