@@ -4,14 +4,21 @@
   <em>A retro terminal-style web interface for generating CSV reports of unwatched content from your Plex Media Server.</em>
 </p>
 
+<p align="center">
+  <strong>v2.0</strong> - Now with real-time progress tracking, accurate all-user play counts, and intelligent CSV sorting!
+</p>
+
 ## Features
 
-- 🎬 **Movie Libraries**: Detailed reports with title, year, play count, file path, and size
+- 🎬 **Movie Libraries**: Detailed reports with title, year, play count (across all users), file path, and size
 - 📺 **TV Show Libraries**: Season-by-season reporting with episode watch statistics
 - 🖥️ **Retro Terminal UI**: Amber CRT-inspired interface with scanlines and glow effects
 - 💾 **Persistent Configuration**: Library selections and settings saved between sessions
 - ⏱️ **Smart Filtering**: Exclude recently added content (configurable days)
-- 📊 **CSV Export**: Easy-to-analyze spreadsheet format
+- 📊 **Sorted CSV Reports**: Movies sorted by play count & date; TV shows sorted by watched status
+- 🔢 **Accurate Play Counts**: Shows total plays across ALL Plex users, not just the token owner
+- 📈 **Real-Time Progress**: Detailed item-level progress tracking ("Processing: Movies - Item 150/500")
+- 🎯 **Auto Type Detection**: Automatically selects Movie/TV Show based on Plex library type
 - 🗑️ **Report Management**: Clear old reports with one click
 - 🔌 **Shutdown Button**: Stop the container when you're done
 
@@ -57,6 +64,7 @@ services:
     volumes:
       - ./config:/config
       - ./reports:/reports
+      - /var/run/docker.sock:/var/run/docker.sock  # Required for shutdown button
     environment:
       - TZ=America/New_York
       - PLEX_URL=http://your-plex-ip:32400
@@ -82,11 +90,14 @@ docker run -d \
   -p 4080:4080 \
   -v ./config:/config \
   -v ./reports:/reports \
+  -v /var/run/docker.sock:/var/run/docker.sock \
   -e TZ=America/New_York \
   -e PLEX_URL=http://your-plex-ip:32400 \
   -e PLEX_TOKEN=your-plex-token-here \
   tawilliams/plex-unwatched-reporter:latest
 ```
+
+**Note:** The `/var/run/docker.sock` volume is required for the shutdown button to work properly.
 
 ### Unraid
 
@@ -112,17 +123,24 @@ docker run -d \
 
 ### 2. Scan Libraries
 
-Click **Scan Libraries** to detect all available Plex libraries from your Plex server using the official Plex API.
+Click **Scan Libraries** to detect all available Plex libraries from your Plex server using the official Plex API. Libraries are automatically categorized as Movie or TV Show based on their type.
 
 ### 3. Select Libraries
 
 - ✅ Check boxes next to libraries you want to report on
-- Choose **MOVIE** for single video files (includes title, year, play count)
-- Choose **TV SHOW** for episodic content (reports by season with episode counts)
+- Library type (Movie/TV Show) is automatically selected based on Plex's classification
+- You can manually change the type if needed
 
 ### 4. Generate Reports
 
-Click **Generate Reports** to create CSV files. Progress is shown in real-time. Download links appear when complete.
+Click **Generate Reports** to create CSV files. 
+
+**Real-time progress tracking shows:**
+- Current library being processed
+- Item-level progress (e.g., "Processing: Movies - Item 150/500")
+- Overall library progress (e.g., "Library 2 / 5")
+
+Download links appear when complete.
 
 ### 5. Manage Reports
 
@@ -136,28 +154,33 @@ Use **Shutdown Application and Stop Container** button when finished. This is a 
 
 ## Volume Mounts
 
-| Container Path | Purpose | Example Host Path |
-|---------------|---------|-------------------|
-| `/config` | Persistent configuration | `./config` or `/mnt/user/appdata/plex-unwatched-reporter` |
-| `/reports` | Generated CSV files | `./reports` or `/mnt/user/Downloads` |
+| Container Path | Purpose | Example Host Path | Required |
+|---------------|---------|-------------------|----------|
+| `/config` | Persistent configuration | `./config` or `/mnt/user/appdata/plex-unwatched-reporter` | Yes |
+| `/reports` | Generated CSV files | `./reports` or `/mnt/user/Downloads` | Yes |
+| `/var/run/docker.sock` | Docker socket for shutdown | `/var/run/docker.sock` | For shutdown button |
 
 ## Report Formats
 
 ### Movie Reports Include:
-- Title
+- Title (left-aligned, even for numeric titles like "1959")
 - Year
 - Date Added to Plex
-- Play Count
+- **Play Count** (total across ALL users)
 - File Path
 - File Size
 
+**Sorting:** Reports are sorted by play count (low to high), then by date added (oldest first). This means unwatched content appears first.
+
 ### TV Show Reports Include:
-- Show Title
+- Show Title (left-aligned, even for numeric titles like "1899")
 - Season Number
-- Watched Status (Yes/No - based on any episode watched)
+- Watched Status (Yes/No - based on any episode watched by any user)
 - Total Episodes in Season
-- Episodes Watched Count
+- Episodes Watched Count (across ALL users)
 - Date Added to Plex
+
+**Sorting:** Reports are sorted by watched status (No first), then show title (A-Z), then season number. This means unwatched shows appear first.
 
 ---
 
@@ -168,6 +191,39 @@ Use **Shutdown Application and Stop Container** button when finished. This is a 
 | `TZ` | `UTC` | Timezone for date/time display |
 | `PLEX_URL` | *Required* | Plex server URL (e.g., `http://192.168.1.100:32400`) |
 | `PLEX_TOKEN` | *Required* | Plex authentication token |
+
+---
+
+## Key Features Explained
+
+### Accurate All-User Play Counts
+
+Unlike some tools that only show the token owner's watch history, this reporter uses Plex's history API to count plays from **ALL users** on your server. If you've watched a movie once but your family has watched it 27 more times, you'll see the accurate total of 28 plays.
+
+### Real-Time Progress Tracking
+
+When generating reports, you'll see detailed progress including:
+- Which library is currently being processed
+- How many items have been processed in that library
+- Which library number you're on out of the total
+
+This is especially helpful for large libraries where processing can take several minutes.
+
+### Intelligent CSV Sorting
+
+Reports are automatically sorted to make unwatched content easy to find:
+- **Movies**: Sorted by play count (0 plays first), then by date added (oldest first)
+- **TV Shows**: Sorted by watched status (unwatched first), then alphabetically
+
+This saves you from having to manually sort in Excel/Sheets.
+
+---
+
+## Performance Notes
+
+**Processing Speed:** This tool queries Plex's API for accurate all-user play counts, which is more thorough but slower than database access. Large libraries may take several minutes to process. The real-time progress tracker helps you monitor the process.
+
+**Recommended Use:** This is a run-on-demand tool. Generate your reports, download them, and shut down the container when finished.
 
 ---
 
@@ -191,6 +247,15 @@ Use **Shutdown Application and Stop Container** button when finished. This is a 
 - Double-check your Plex token is correct
 - Generate a new token following the Prerequisites section
 - Ensure there are no extra spaces when copying the token
+
+### Shutdown Button Not Working
+
+**Error**: Button shows "shutting down" but container keeps running
+
+**Solution**:
+- Ensure you've mounted the Docker socket: `-v /var/run/docker.sock:/var/run/docker.sock`
+- Check that Docker CLI is installed in the container (should be automatic with latest image)
+- Verify the container name is exactly `plex-unwatched-reporter`
 
 ### Port Already in Use
 
@@ -222,6 +287,17 @@ Then access via `http://your-ip:8090`
 - Check Docker logs for connection errors
 - Ensure your Plex token has access to your Plex libraries
 - Try restarting the container: `docker restart plex-unwatched-reporter`
+
+### Slow Report Generation
+
+**Symptoms**: Report generation takes a long time
+
+**Explanation**: This is normal! The tool queries Plex's API for each item to get accurate all-user play counts. Large libraries with thousands of items will take several minutes. Watch the real-time progress tracker to monitor the process.
+
+**Tips:**
+- Let it run - the progress tracker shows it's working
+- Consider excluding recently added content to reduce the number of items processed
+- This is why it's a run-on-demand tool rather than a continuously running service
 
 ---
 
