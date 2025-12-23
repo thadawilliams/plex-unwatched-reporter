@@ -1,18 +1,16 @@
 services:
   plex-reporter:
-    build: .
+    image: tawilliams/plex-unwatched-reporter:latest
     container_name: plex-unwatched-reporter
     ports:
-      - "4080:4080"
+      - "4080:8089"
     volumes:
-      # Configuration storage
       - ./config:/config
-      # Reports output directory (you can also map this to /mnt/user/Downloads if preferred)
       - ./reports:/reports
-      # Plex database (read-only) - UPDATE THIS PATH TO YOUR PLEX LOCATION
+      # UPDATE THIS PATH to your Plex database location
       - /mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/plex-db:ro
     environment:
-      - TZ=America/Denver
+      - TZ=America/New_York
     restart: unless-stopped
     logging:
       driver: "json-file"
