@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install Python dependencies
-RUN pip install --no-cache-dir flask==3.0.0
+RUN pip install --no-cache-dir flask==3.0.0 plexapi
 
 # Copy the single application file
 COPY app.py .

@@ -18,6 +18,26 @@
 
 ![Main Interface](screenshots/main-interface.png)
 
+## Prerequisites
+
+Before installing, you need to obtain your **Plex Token**:
+
+### How to Get Your Plex Token
+
+1. **Log into Plex Web** at https://app.plex.tv
+2. **Play any media item** in your library
+3. Click the **three dots (...)** → **"Get Info"**
+4. Click **"View XML"** at the bottom
+5. Look in the URL bar - your token is the part after `X-Plex-Token=`
+   - Example URL: `https://app.plex.tv/.../...?X-Plex-Token=ABC123XYZ789`
+   - Your token is: `ABC123XYZ789`
+6. **Copy the token** - you'll need it during installation
+
+**Alternative method:**
+- Follow the official guide: https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+
+⚠️ **Security Note:** Keep your Plex token private - it grants full access to your Plex server.
+
 ## Quick Start
 
 ### Docker Compose (Recommended)
