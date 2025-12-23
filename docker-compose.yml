@@ -1,4 +1,4 @@
-services:
+amlservices:
   plex-reporter:
     image: tawilliams/plex-unwatched-reporter:latest
     container_name: plex-unwatched-reporter
@@ -7,6 +7,7 @@ services:
     volumes:
       - ./config:/config
       - ./reports:/reports
+      - /var/run/docker.sock:/var/run/docker.sock  # Required for shutdown button
     environment:
       - TZ=America/New_York
       - PLEX_URL=http://your-plex-ip:32400

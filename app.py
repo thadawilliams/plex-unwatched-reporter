@@ -300,16 +300,25 @@ def clear_reports():
 
 @app.route('/api/shutdown',methods=['POST'])
 def shutdown_container():
-    """Trigger shutdown by sending SIGTERM to self"""
-    import signal
-    
+    """Stop the container using Docker socket"""
     def trigger_shutdown():
         import time
+        import subprocess
         time.sleep(1)  # Give time for response to be sent
-        os.kill(os.getpid(), signal.SIGTERM)
+        
+        try:
+            # Get our container name from hostname
+            container_name = 'plex-unwatched-reporter'
+            # Use docker socket to stop ourselves
+            subprocess.run(['docker', 'stop', container_name], check=True)
+        except Exception as e:
+            print(f"Docker stop failed: {e}, using fallback")
+            # Fallback to force exit
+            import os
+            os._exit(0)
     
     import threading
-    threading.Thread(target=trigger_shutdown).start()
+    threading.Thread(target=trigger_shutdown, daemon=True).start()
     return jsonify({'status':'shutting down'})
 
 def handle_sigterm(signum, frame):
