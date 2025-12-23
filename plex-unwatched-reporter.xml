@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>plex-unwatched-reporter</Name>
+  <Repository>tawilliams/plex-unwatched-reporter</Repository>
+  <Registry>https://hub.docker.com/r/tawilliams/plex-unwatched-reporter</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/thadawilliams/plex-unwatched-reporter/issues</Support>
+  <Project>https://github.com/thadawilliams/plex-unwatched-reporter</Project>
+  <Overview>Generate CSV reports of unwatched content from your Plex Media Server with a beautiful retro amber terminal interface. Features persistent configuration, smart filtering, and season-by-season TV show reporting.</Overview>
+  <Category>MediaApp:Other MediaServer:Other Tools:</Category>
+  <WebUI>http://[IP]:[PORT:4080]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/thadawilliams/plex-unwatched-reporter/main/plex-unwatched-reporter.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/thadawilliams/plex-unwatched-reporter/main/images/icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled></DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="4080" Default="4080" Mode="tcp" Description="Web interface port" Type="Port" Display="always" Required="true" Mask="false">4080</Config>
+  <Config Name="Config Directory" Target="/config" Default="/mnt/user/appdata/plex-unwatched-reporter" Mode="rw" Description="Application configuration storage" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/plex-unwatched-reporter</Config>
+  <Config Name="Reports Directory" Target="/reports" Default="/mnt/user/Downloads" Mode="rw" Description="CSV report output location" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/Downloads</Config>
+  <Config Name="Plex Database" Target="/plex-db" Default="/mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases" Mode="ro" Description="Plex database directory (read-only)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases</Config>
+  <Config Name="Timezone" Target="TZ" Default="America/New_York" Mode="" Description="Timezone for date/time display" Type="Variable" Display="advanced" Required="false" Mask="false">America/New_York</Config>
+</Container>
