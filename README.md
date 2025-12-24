@@ -52,7 +52,13 @@ Before installing, you need to obtain your **Plex Token**:
 
 ### Docker Compose (Recommended)
 
-1. Create a `docker-compose.yml` file:
+1. **Create a project directory:**
+```bash
+mkdir -p ~/plex-unwatched-reporter
+cd ~/plex-unwatched-reporter
+```
+
+2. Create a `docker-compose.yml` file:
 
 ```yaml
 services:
@@ -77,10 +83,10 @@ services:
         max-file: "3"
 ```
 
-2. Update `PLEX_URL` to your Plex server address (e.g., `http://192.168.1.100:32400`)
-3. Replace `PLEX_TOKEN` with your actual Plex token from the Prerequisites section
-4. Run: `docker-compose up -d`
-5. Access at: `http://your-server-ip:4080`
+3. Update `PLEX_URL` to your Plex server address...
+4. Replace `PLEX_TOKEN` with your actual Plex token...
+5. Run: `docker-compose up -d`
+6. Access at: `http://your-server-ip:4080`
 
 ### Docker Run
 
