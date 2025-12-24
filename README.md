@@ -343,6 +343,7 @@ This means:
 - 💡 [Request Features](https://github.com/thadawilliams/plex-unwatched-reporter/issues/new)
 - 📖 [Documentation](https://github.com/thadawilliams/plex-unwatched-reporter/wiki)
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/thadawilliams)
 ---
 
 ## Acknowledgments
