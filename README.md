@@ -104,18 +104,7 @@ docker run -d \
 
 **Note:** The `/var/run/docker.sock` volume is required for the shutdown button to work properly.
 
-### Unraid
-
-1. Open **Community Applications**
-2. Search for "Plex Unwatched Reporter"
-3. Click **Install**
-4. Configure:
-   - **Config**: `/mnt/user/appdata/plex-unwatched-reporter`
-   - **Reports**: `/mnt/user/Downloads` (or your preferred location)
-   - **Plex URL**: `http://your-plex-ip:32400` (your Plex server address)
-   - **Plex Token**: Your Plex authentication token
-   - **Timezone**: Your timezone (e.g., `America/New_York`)
-5. Click **Apply**
+**Note:** This app is not currently listed in Unraid Community Applications (the submission was never reviewed). If you're on Unraid, the **Docker Compose** or **Docker Run** instructions above work fine — just run them from the Unraid terminal, and use Unraid-style paths for your volumes (e.g. `/mnt/user/appdata/plex-unwatched-reporter` for `/config`, `/mnt/user/Downloads` for `/reports`).
 
 ---
 
