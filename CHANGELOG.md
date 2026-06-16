@@ -5,32 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2024-12-24
+## [2.1.0](https://github.com/thadawilliams/plex-unwatched-reporter/releases/tag/v2.1.0) - 2026-06-16
+
+### 🎉 New Features
+
+#### Staleness Tracking
+
+- New configurable "Flag As Stale If Unwatched For (days)" setting (default: 730 days, ~2 years)
+- Movie and TV reports now include a **Last Watched** column (most recent watch date across all users, or "Never")
+- New **Status** column classifies each item as `Never Watched`, `Stale`, or `Recently Watched`
+- Reuses the existing per-item Plex history lookups already used for play counts - no additional API calls or processing time
+
+### 🔧 Technical Changes
+
+- `generate_movie_report_plexapi()` and `generate_tv_report_plexapi()` now accept a `stale_cutoff` parameter
+- New `staleDays` field persisted in `config.json` alongside `excludeDays`
+
+### 📚 Documentation
+
+- Updated README "Report Formats" section with the new columns
+- Added a "Staleness Tracking" entry under "Key Features Explained"
+
+---
+
+## [2.0.0](https://github.com/thadawilliams/plex-unwatched-reporter/releases/tag/v2.0.0) - 2024-12-24
 
 ### 🎉 Major Features
 
 #### Accurate All-User Play Counts
+
 - Play counts now reflect activity across **ALL Plex users**, not just the token owner
 - Uses Plex's history API instead of viewCount for comprehensive reporting
 - Finally see the true popularity of your content!
 
 #### Real-Time Progress Tracking
+
 - Detailed item-level progress during report generation
 - Shows "Processing: Library Name - Item 150/500"
 - Track overall progress across multiple libraries
 - No more wondering if it's still working on large libraries
 
 #### Intelligent CSV Sorting
+
 - **Movies**: Automatically sorted by play count (unwatched first), then by date added
 - **TV Shows**: Sorted by watched status (unwatched first), then show title, then season number
 - No manual sorting needed in Excel/Sheets!
 
 #### Auto Library Type Detection
+
 - Automatically selects Movie or TV Show based on Plex's library type
 - Fewer clicks to get started
 - Still manually adjustable if needed
 
 #### Working Shutdown Button
+
 - Properly stops the container when you're done
 - No more manually stopping from Docker/Unraid interface
 - Requires Docker socket mount (see README)
@@ -45,9 +73,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🔧 Technical Changes
 
 - **BREAKING**: Switched from database access to Plex API
-  - Safer and officially supported by Plex
-  - More accurate cross-user data
-  - Slower but more thorough
+  * Safer and officially supported by Plex
+  * More accurate cross-user data
+  * Slower but more thorough
 - Removed database volume mount requirement
 - Added Docker CLI to container for shutdown functionality
 - Updated to Python 3.11-slim base image
@@ -73,7 +101,7 @@ If upgrading from v1.x:
    - `PLEX_TOKEN=your-plex-token-here`
 4. **Update** your configuration - library scanning now uses Plex API
 
-See the [README](README.md) for complete installation instructions.
+See the [README](https://github.com/thadawilliams/plex-unwatched-reporter/blob/main/README.md) for complete installation instructions.
 
 ### 🙏 Acknowledgments
 
@@ -81,7 +109,7 @@ Special thanks to everyone who tested and provided feedback during development!
 
 ---
 
-## [1.0.0] - 2024-12-23
+## [1.0.0](https://github.com/thadawilliams/plex-unwatched-reporter/releases/tag/v1.0.0) - 2024-12-23
 
 ### Initial Release
 
@@ -93,8 +121,3 @@ Special thanks to everyone who tested and provided feedback during development!
 - Direct Plex database access
 - Report management (clear reports)
 - Configurable exclusion period
-
----
-
-[2.0.0]: https://github.com/thadawilliams/plex-unwatched-reporter/releases/tag/v2.0.0
-[1.0.0]: https://github.com/thadawilliams/plex-unwatched-reporter/releases/tag/v1.0.0
