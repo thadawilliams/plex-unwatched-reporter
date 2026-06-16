@@ -1,17 +1,14 @@
 # Plex Unwatched Reporter
 
-<p align="center">
-  <em>A retro terminal-style web interface for generating CSV reports of unwatched content from your Plex Media Server.</em>
-</p>
+*A retro terminal-style web interface for generating CSV reports of unwatched content from your Plex Media Server.*
 
-<p align="center">
-  <strong>v2.0</strong> - Now with real-time progress tracking, accurate all-user play counts, and intelligent CSV sorting!
-</p>
+**v2.1** - Now with staleness tracking, real-time progress, accurate all-user play counts, and intelligent CSV sorting!
 
 ## Features
 
-- 🎬 **Movie Libraries**: Detailed reports with title, year, play count (across all users), file path, and size
+- 🎬 **Movie Libraries**: Detailed reports with title, year, play count (across all users), last watched date, status, file path, and size
 - 📺 **TV Show Libraries**: Season-by-season reporting with episode watch statistics
+- 🕰️ **Staleness Tracking**: Flag content that hasn't been watched in a configurable amount of time (e.g. 2 years), separate from content that's never been watched at all
 - 🖥️ **Retro Terminal UI**: Amber CRT-inspired interface with scanlines and glow effects
 - 💾 **Persistent Configuration**: Library selections and settings saved between sessions
 - ⏱️ **Smart Filtering**: Exclude recently added content (configurable days)
@@ -24,7 +21,7 @@
 
 ## Screenshots
 
-![Main Interface](screenshots/main-interface.png)
+[![Main Interface](https://github.com/thadawilliams/plex-unwatched-reporter/raw/main/screenshots/main-interface.png)](/thadawilliams/plex-unwatched-reporter/blob/main/screenshots/main-interface.png)
 
 ## Prerequisites
 
@@ -32,7 +29,7 @@ Before installing, you need to obtain your **Plex Token**:
 
 ### How to Get Your Plex Token
 
-1. **Log into Plex Web** at https://app.plex.tv
+1. **Log into Plex Web** at <https://app.plex.tv>
 2. **Play any media item** in your library
 3. Click the **three dots (...)** → **"Get Info"**
 4. Click **"View XML"** at the bottom
@@ -42,7 +39,8 @@ Before installing, you need to obtain your **Plex Token**:
 6. **Copy the token** - you'll need it during installation
 
 **Alternative method:**
-- Follow the official guide: https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+
+- Follow the official guide: <https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/>
 
 ⚠️ **Security Note:** Keep your Plex token private - it grants full access to your Plex server.
 
@@ -53,14 +51,15 @@ Before installing, you need to obtain your **Plex Token**:
 ### Docker Compose (Recommended)
 
 1. **Create a project directory:**
-```bash
+
+```
 mkdir -p ~/plex-unwatched-reporter
 cd ~/plex-unwatched-reporter
 ```
 
 2. Create a `docker-compose.yml` file:
 
-```yaml
+```
 services:
   plex-reporter:
     image: tawilliams/plex-unwatched-reporter:latest
@@ -90,7 +89,7 @@ services:
 
 ### Docker Run
 
-```bash
+```
 docker run -d \
   --name plex-unwatched-reporter \
   -p 4080:4080 \
@@ -125,6 +124,7 @@ docker run -d \
 ### 1. Configure Settings
 
 - **Exclusion Period**: Ignore content added within X days (default: 30)
+- **Staleness Threshold**: Flag content as stale if unwatched for X days (default: 730, roughly 2 years) - this is separate from content that's never been watched at all
 - Click **Save Configuration**
 
 ### 2. Scan Libraries
@@ -139,9 +139,10 @@ Click **Scan Libraries** to detect all available Plex libraries from your Plex s
 
 ### 4. Generate Reports
 
-Click **Generate Reports** to create CSV files. 
+Click **Generate Reports** to create CSV files.
 
 **Real-time progress tracking shows:**
+
 - Current library being processed
 - Item-level progress (e.g., "Processing: Movies - Item 150/500")
 - Overall library progress (e.g., "Library 2 / 5")
@@ -160,43 +161,49 @@ Use **Shutdown Application and Stop Container** button when finished. This is a 
 
 ## Volume Mounts
 
-| Container Path | Purpose | Example Host Path | Required |
-|---------------|---------|-------------------|----------|
-| `/config` | Persistent configuration | `./config` or `/mnt/user/appdata/plex-unwatched-reporter` | Yes |
-| `/reports` | Generated CSV files | `./reports` or `/mnt/user/Downloads` | Yes |
-| `/var/run/docker.sock` | Docker socket for shutdown | `/var/run/docker.sock` | For shutdown button |
+| Container Path         | Purpose                    | Example Host Path                                         | Required            |
+| ----------------------- | --------------------------- | ----------------------------------------------------------- | -------------------- |
+| `/config`              | Persistent configuration   | `./config` or `/mnt/user/appdata/plex-unwatched-reporter` | Yes                 |
+| `/reports`             | Generated CSV files        | `./reports` or `/mnt/user/Downloads`                      | Yes                 |
+| `/var/run/docker.sock` | Docker socket for shutdown | `/var/run/docker.sock`                                    | For shutdown button |
 
 ## Report Formats
 
 ### Movie Reports Include:
+
 - Title (left-aligned, even for numeric titles like "1959")
 - Year
 - Date Added to Plex
 - **Play Count** (total across ALL users)
+- **Last Watched** (most recent watch date across all users, or "Never")
+- **Status** (`Never Watched`, `Stale`, or `Recently Watched`, based on your staleness threshold)
 - File Path
 - File Size
 
-**Sorting:** Reports are sorted by play count (low to high), then by date added (oldest first). This means unwatched content appears first.
+**Sorting:** Reports are sorted by play count (low to high), then by date added (oldest first). This means unwatched content appears first. Use the **Status** column to sort by staleness if you'd rather see that grouping instead.
 
 ### TV Show Reports Include:
+
 - Show Title (left-aligned, even for numeric titles like "1899")
 - Season Number
 - Watched Status (Yes/No - based on any episode watched by any user)
 - Total Episodes in Season
 - Episodes Watched Count (across ALL users)
+- **Last Watched** (most recent watch date across all users for that season, or "Never")
+- **Status** (`Never Watched`, `Stale`, or `Recently Watched`, based on your staleness threshold)
 - Date Added to Plex
 
-**Sorting:** Reports are sorted by watched status (No first), then show title (A-Z), then season number. This means unwatched shows appear first.
+**Sorting:** Reports are sorted by watched status (No first), then show title (A-Z), then season number. This means unwatched shows appear first. Use the **Status** column to sort by staleness if you'd rather see that grouping instead.
 
 ---
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TZ` | `UTC` | Timezone for date/time display |
-| `PLEX_URL` | *Required* | Plex server URL (e.g., `http://192.168.1.100:32400`) |
-| `PLEX_TOKEN` | *Required* | Plex authentication token |
+| Variable     | Default    | Description                                          |
+| ------------ | ---------- | ------------------------------------------------------ |
+| `TZ`         | `UTC`      | Timezone for date/time display                       |
+| `PLEX_URL`   | *Required* | Plex server URL (e.g., `http://192.168.1.100:32400`) |
+| `PLEX_TOKEN` | *Required* | Plex authentication token                            |
 
 ---
 
@@ -206,9 +213,14 @@ Use **Shutdown Application and Stop Container** button when finished. This is a 
 
 Unlike some tools that only show the token owner's watch history, this reporter uses Plex's history API to count plays from **ALL users** on your server. If you've watched a movie once but your family has watched it 27 more times, you'll see the accurate total of 28 plays.
 
+### Staleness Tracking
+
+Beyond simply flagging content as "never watched," the reporter tracks the most recent watch date for every movie and TV season, across all users. Set a "staleness threshold" (default 730 days, about 2 years) and each item's **Status** column will read `Never Watched`, `Stale` (watched at some point, but not within your threshold), or `Recently Watched`. This reuses the same Plex history lookups already being made for play counts, so there's no additional processing time.
+
 ### Real-Time Progress Tracking
 
 When generating reports, you'll see detailed progress including:
+
 - Which library is currently being processed
 - How many items have been processed in that library
 - Which library number you're on out of the total
@@ -218,10 +230,11 @@ This is especially helpful for large libraries where processing can take several
 ### Intelligent CSV Sorting
 
 Reports are automatically sorted to make unwatched content easy to find:
+
 - **Movies**: Sorted by play count (0 plays first), then by date added (oldest first)
 - **TV Shows**: Sorted by watched status (unwatched first), then alphabetically
 
-This saves you from having to manually sort in Excel/Sheets.
+This saves you from having to manually sort in Excel/Sheets. If you want to group by staleness instead, sort by the **Status** column after opening the CSV.
 
 ---
 
@@ -239,7 +252,8 @@ This saves you from having to manually sort in Excel/Sheets.
 
 **Error**: "Failed to connect" or "Connection refused"
 
-**Solution**: 
+**Solution**:
+
 - Verify `PLEX_URL` is correct and includes the port (usually `32400`)
 - If Plex is on the same server, try `http://localhost:32400`
 - If on a different server, use the server's IP address
@@ -250,6 +264,7 @@ This saves you from having to manually sort in Excel/Sheets.
 **Error**: "Unauthorized" or "Invalid token"
 
 **Solution**:
+
 - Double-check your Plex token is correct
 - Generate a new token following the Prerequisites section
 - Ensure there are no extra spaces when copying the token
@@ -259,6 +274,7 @@ This saves you from having to manually sort in Excel/Sheets.
 **Error**: Button shows "shutting down" but container keeps running
 
 **Solution**:
+
 - Ensure you've mounted the Docker socket: `-v /var/run/docker.sock:/var/run/docker.sock`
 - Check that Docker CLI is installed in the container (should be automatic with latest image)
 - Verify the container name is exactly `plex-unwatched-reporter`
@@ -268,10 +284,12 @@ This saves you from having to manually sort in Excel/Sheets.
 **Error**: Port 4080 conflict
 
 **Solution**: Change the host port (first number) in docker-compose.yml:
-```yaml
+
+```
 ports:
   - "8090:4080"  # Changed to 8090
 ```
+
 Then access via `http://your-ip:8090`
 
 ### Reports Not Generating
@@ -279,6 +297,7 @@ Then access via `http://your-ip:8090`
 **Symptoms**: No errors but reports don't appear
 
 **Solution**:
+
 - Check Docker logs: `docker logs plex-unwatched-reporter`
 - Verify at least one library is selected
 - Ensure reports directory has write permissions
@@ -289,6 +308,7 @@ Then access via `http://your-ip:8090`
 **Symptoms**: Scan Libraries returns empty or shows error
 
 **Solution**:
+
 - Verify `PLEX_URL` and `PLEX_TOKEN` are set correctly
 - Check Docker logs for connection errors
 - Ensure your Plex token has access to your Plex libraries
@@ -298,9 +318,10 @@ Then access via `http://your-ip:8090`
 
 **Symptoms**: Report generation takes a long time
 
-**Explanation**: This is normal! The tool queries Plex's API for each item to get accurate all-user play counts. Large libraries with thousands of items will take several minutes. Watch the real-time progress tracker to monitor the process.
+**Explanation**: This is normal! The tool queries Plex's API for each item to get accurate all-user play counts (and, since v2.1, last-watched dates). Large libraries with thousands of items will take several minutes. Watch the real-time progress tracker to monitor the process.
 
 **Tips:**
+
 - Let it run - the progress tracker shows it's working
 - Consider excluding recently added content to reduce the number of items processed
 - This is why it's a run-on-demand tool rather than a continuously running service
@@ -309,7 +330,7 @@ Then access via `http://your-ip:8090`
 
 ## Building from Source
 
-```bash
+```
 git clone https://github.com/thadawilliams/plex-unwatched-reporter.git
 cd plex-unwatched-reporter
 docker build -t plex-unwatched-reporter .
@@ -332,9 +353,10 @@ Contributions welcome! Please:
 
 ## License
 
-This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](https://github.com/thadawilliams/plex-unwatched-reporter/blob/main/LICENSE) file for details.
 
 This means:
+
 - ✅ You can use, modify, and distribute this software
 - ✅ You can use it commercially
 - ⚠️ You must disclose source code of any modifications
@@ -349,8 +371,7 @@ This means:
 - 💡 [Request Features](https://github.com/thadawilliams/plex-unwatched-reporter/issues/new)
 - 📖 [Documentation](https://github.com/thadawilliams/plex-unwatched-reporter/wiki)
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/thadawilliams)
----
+## [Buy Me A Coffee](https://www.buymeacoffee.com/thadawilliams)
 
 ## Acknowledgments
 
